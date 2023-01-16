@@ -3,3 +3,4 @@
 *.csv
 *.html
 .vscode/
+.ipynb_checkpoints
