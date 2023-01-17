@@ -7,8 +7,8 @@ with open("README.md", "r") as fh:
 setup(
     author_email='berkin.ulukutlu@cern.ch',
     author='Berkin Ulukutlu',
-    url='https://github.com/bulukutlu/uits3-krakow22',
-    name='uits3-krakow22',
+    url='https://github.com/bulukutlu/uits3_krakow22',
+    name='uits3_krakow22',
     version='v0.1', 
     packages=setuptools.find_packages(),
     license='MIT License',
