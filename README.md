@@ -91,15 +91,34 @@ Check installation:
 ```
 corry --help
 ```
+After installing please also add the location of corry to your `.bashrc`:
+```
+export CORRYVRECKAN_DIR="/where-you-installed-corry/corryvrekcan/"
+```
+
 > ### Note: 
 > For accessing the corry objects in ROOT you need to add the shared library to the gSystem.
 > 
 > For example when you enter ROOT:
 > ```
->  gSystem->Load("/home/berki/Software/corryvreckan/lib/libCorryvreckanObjects.so")
+>  gSystem->Load("$CORRYVRECKAN_DIR/lib/libCorryvreckanObjects.so")
 > ```
 >  Or in macros:
 > ```
->  gSystem->AddLinkedLibs("-L /home/berki/Software/corryvreckan/lib -l libCorryvreckanObjects.so");
+>  gSystem->AddLinkedLibs("-L $CORRYVRECKAN_DIR/lib -l libCorryvreckanObjects.so");
 > ```
 >To-Do: Need to check if there is not another way. 
+---
+# Installing the package
+
+> If you don't already have the repo locally:
+> ```
+> git clone https://github.com/bulukutlu/uits3-krakow22.git
+> ```
+> in the directory where you want to have it.
+
+After the prerequisites are installed you can simply install this package with pip.
+```
+pip install -e uits3-krakow22/
+```
+You can check if everything was properly set up using the [testInstallation.ipynb](uits3-krakow22/notebooks/testInstallation.ipynb) notebook.
