@@ -1,6 +1,19 @@
+# setup.py things
+/build
+/dist
+/MANIFEST
+**/*.egg-info*
+
+# ipython files
+**/.ipynb_checkpoints
+
+# Text editor stuff
+.vscode/
+
+# Data files
 *.root
 *.raw
 *.csv
+
+# Output files
 *.html
-.vscode/
-.ipynb_checkpoints
