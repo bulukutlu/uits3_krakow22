@@ -27,5 +27,6 @@ setup(
         'runtime',
         'requests',
         "notebook>=6.4.10"
+        "jupyter_contrib_nbextensions"
     ]
 )
