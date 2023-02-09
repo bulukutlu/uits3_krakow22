@@ -1,7 +1,23 @@
 class Event:
-    def __init__(self):
-        self.timestamp = 0
-        self.clusters = []
+    def __init__(self,timestamp = None,clusters = None,tracks = None,vertex = None,dca=None):
+        if timestamp : self.timestamp = timestamp
+        else : self.timestamp = 0
+        
+        if clusters : self.clusters = clusters
+        else : self.clusters = []
+        
+        if tracks : self.tracks = tracks
+        else : self.tracks = []
+
+        if vertex : self.vertex = vertex
+        else : self.vertex = []
+
+        if dca : self.dca = dca
+        else : self.dca = -1
+
+    def clearData(self):
+        for var in self:
+            del var
     
     def setTimestamp(self,time):
         self.timestamp = time
@@ -18,3 +34,13 @@ class Event:
             if cluster.detector == detector:
                 selectedClusters.append(cluster)
         return selectedClusters
+
+    def addTrack(self,track):
+        self.tracks.append(track)
+
+    def calculateVertex(self):
+        if len(self.tracks) != 2:
+            raise Exception("Can calculate vertex only for 2 tracks. #tracks = ",len(self.tracks))
+        else:
+            # ToDo
+            print("Calculate vertex")
