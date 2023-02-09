@@ -58,14 +58,15 @@ if __name__ == "__main__":
     events = []
     previousEventNr = -1
 
-    chunksize = 1e6
+    chunksize = 1e5
     nLines = getNLines(path)
-    print("Found",nLines,"clusters.")
+    nChunks = math.ceil(nLines/chunksize)
+    print("Found",nLines,"clusters. Going to process in",nChunks,"chunks.")
 
     outpath = args.__dict__["output"]
     with open(outpath, 'wb') as outp:
         with pd.read_csv(path, chunksize=chunksize) as reader:
-            for df in tqdm(reader,total=math.ceil(nLines/chunksize)):
+            for df in tqdm(reader,total=nChunks):
                 for index,row in tqdm(df.iterrows(), total=len(df.index), leave=False):
                     cluster = Cluster(detector=row["detector"],
                                     size=row["nPixels"],
@@ -79,7 +80,7 @@ if __name__ == "__main__":
                     if row["eventNr"] != previousEventNr: #new event
                         if previousEventNr != -1 : events.append(event)
                         previousEventNr = row["eventNr"]
-                        if len(events) % 1e6 == 0 and len(events) != 0:
+                        if len(events) % 1e5 == 0 and len(events) != 0:
                             pickle.dump(events, outp, pickle.HIGHEST_PROTOCOL)
                             #print("Saved 1 Million events to",outpath) 
                             events = []
