@@ -1,3 +1,5 @@
+from uits3_krakow22.src.Vertex import Vertex
+
 class Event:
     def __init__(self,timestamp = None,clusters = None,tracks = None,vertex = None,dca=None):
         if timestamp : self.timestamp = timestamp
@@ -39,8 +41,4 @@ class Event:
         self.tracks.append(track)
 
     def calculateVertex(self):
-        if len(self.tracks) != 2:
-            raise Exception("Can calculate vertex only for 2 tracks. #tracks = ",len(self.tracks))
-        else:
-            # ToDo
-            print("Calculate vertex")
+        self.vertex = Vertex().fromTracks(self.tracks)
