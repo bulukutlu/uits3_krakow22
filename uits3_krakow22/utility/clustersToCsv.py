@@ -1,21 +1,20 @@
 #!/usr/bin/env python
 
-# extractTimestamps.py
+# clustersToCsv.py
 # Date: 20.10.2022
 # Author: Berkin Ulukutlu
-# ==> For extracting timestamp info from raw files recorded with ALPIDEs
+# ==> Convert text file from corry to csv table containing clusters
 
-import sys,os
 import argparse
-import csv 
+import fileinput
+from tqdm import tqdm 
 
 def parseArguments():
     # Create argument parser
     parser = argparse.ArgumentParser(description='''
-        Usage: 
-        1. Get number of events in raw file with:  /eudaq/bin/euCliReader -i run167000654_210425045725.raw 
-        2. Pipe event info from raw file: /eudaq/bin/euCliReader -i run167000654_210425045725.raw -e 0 -E EventNr | python3 extractTimestamps.py 
-        Alternative: If you don't want to pipe, save event info to file and give file with python3 extractTimestamps.py -i myFile.txt
+        Usage:
+        Run corryvreckan clusterizer with TextWriter module. Then:
+        python clusterToCsv.py -i run123456_123456_clusters.txt -o run123456_123456_clusters.csv
         ''',  formatter_class=argparse.RawTextHelpFormatter)
     
     # Optional arguments
@@ -28,50 +27,28 @@ def parseArguments():
     args = parser.parse_args()
     return args
 
-def getInputFile(args):
-    if args.__dict__["input"] == "":
-        print("INFO: No input file provided so reading with stdin\n")
-        lines = sys.stdin.readlines()
-    else:
-        print("INFO: Reading from "+args.__dict__["input"]+"\n")
-        with open(args.__dict__["input"]) as f:
-            lines = f.readlines()
-    return lines
-
-def getEvents(lines):
-    # find locations of the starts of real events (ignoring status events)
-    events = [i-3 for i,x in enumerate(lines) if x=="  <Description>ITS3global</Description>\n"]
-    return events
-
-def getDAQCount(lines,event):
-    DAQ_COUNT = int(lines[event+13][10:-8])
-    return DAQ_COUNT
-
-def parseEvent(lines,event,DAQ_COUNT):
-    # Position helpers
-    target = [7,8,10]
-    margin_beg = [8,10,11]
-    margin_end = [8,10,30]
-    # Get information from each event
-    line = event + 14
-    data = []
-    # Get EventNr
-    data += [lines[line+target[0]][margin_beg[0]+6:-(margin_end[0]+2)]]
-    # Get TriggerNr
-    data += [lines[line+target[1]][margin_beg[1]+6:-(margin_end[1]+2)]]
-    # Go over ALPIDEs and extract the timestamp (in decimal format)
-    for daq in range(DAQ_COUNT):
-        line = event + 14 + daq*13
-        data += [lines[line+target[2]][margin_beg[2]+6:-(margin_end[2]+2)]]
-    return data
+def getNLines(path):
+    def _count_generator(reader):
+        b = reader(1024 * 1024)
+        while b:
+            yield b
+            b = reader(1024 * 1024)
+    with open(path, 'rb') as fp:
+        c_generator = _count_generator(fp.raw.read)
+        count = sum(buffer.count(b'\n') for buffer in c_generator)
+        return count+1
 
 
 if __name__ == "__main__":
     # Parse the arguments
     args = parseArguments()
 
-    # Read input
-    lines = getInputFile(args)
+    # Read csv file to pandas dataframe
+    path = args.__dict__["input"]
+    if path == "" : raise Exception("No input file provided. Use the -i option to give the path of the .txt file")
+    print("Reading file",path)
+    nLines = getNLines(path)
+    print("Found",nLines,"lines")
 
     # Header line for the csv file
     header = "eventNr,detector,localX,localY,globalX,globalY,globalZ,charge,split,nPixels,columnWidth,rowWidth,timeStamp"
@@ -91,7 +68,7 @@ if __name__ == "__main__":
 
     with open(output_file_name, 'w') as w:
         w.write(header+"\n")
-        for line in lines:
+        for line in tqdm(fileinput.input(path),total=nLines):
             if line[0] == "=":
                 eventNr = line.replace("=","").replace(" ","").replace("\n","")
             if line[0] == "-":
