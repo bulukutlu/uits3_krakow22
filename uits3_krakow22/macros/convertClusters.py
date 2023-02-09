@@ -4,6 +4,7 @@ import time
 import ROOT
 import numpy as np
 import pickle
+import tqdm.contrib
 from uits3_krakow22.src.Event import Event
 from uits3_krakow22.src.Cluster import Cluster
 from uits3_krakow22.src.Track import Track
@@ -33,6 +34,7 @@ def getInputFile(args):
     else:
         print("INFO: Reading from "+args.__dict__["input"]+"\n")
         filePath = args.__dict__["input"]
+
     return filePath
 
 if __name__ == "__main__":
@@ -47,25 +49,21 @@ if __name__ == "__main__":
 
     detectors = ["ALPIDE_0","ALPIDE_1","ALPIDE_2","ALPIDE_3","ALPIDE_4"]
 
-    events = []
-
     nEvents = tClusters.GetEntriesFast() # to read full file
     print("Going to process ", nEvents, " events.")
-
-    for index,event in enumerate(tClusters):
-        if index%1000 == 0 : print("Processed ",index,"/",nEvents," events: ","{:.2f}".format((100*index)/nEvents),"%")
-        if index > nEvents : break #to limit the number of events to be processed
-        myEvent = Event()
-        for detector in detectors:
-            branch = getattr(event, detector)
-            for cluster in branch:
-                myClus = Cluster()
-                myClus.setData(cluster)
-                myEvent.addCluster(myClus)
-        events.append(myEvent)
-
-    print("Saving to path: ",outputPath)
+    myEvent = Event()
+    myClus = Cluster()
     with open(outputPath, 'wb') as f:
-        pickle.dump(events, f)
+        for index,event in tqdm.contrib.tenumerate(tClusters):
+            #if index%1000 == 0 : print("Processed ",index,"/",nEvents," events: ","{:.2f}".format((100*index)/nEvents),"%")
+            if index > nEvents : break #to limit the number of events to be processed
+            for detector in detectors:
+                branch = getattr(event, detector)
+                for cluster in branch:
+                    myClus.setData(cluster)
+                    myEvent.addCluster(myClus)
+            myEvent.clearData()
+            ##events.append(myEvent)
+            #pickle.dump(myEvent, f)
     
     print("Done!")
