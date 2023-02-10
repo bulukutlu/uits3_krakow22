@@ -26,7 +26,7 @@ class Cluster:
     def __init__(self,detector=None,size=None,col=None,row=None,charge=None,localPos=None,globalPos=None,split=None,colWidth=None,rowWidth=None):
         if detector : self.detector = detector
         else : self.detector = 0
-
+        print("Bob")
         if size : self.size = size
         else : self.size = 0
         
