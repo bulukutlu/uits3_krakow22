@@ -37,8 +37,8 @@ class Cluster:
         else : self.row = 0
         
         if charge : self.charge = charge
-        else : self.charge = 0
-        
+        else : self.charge = 0        
+
         if localPos : self.localPos = localPos
         else : self.localPos = [0,0,0]
         
@@ -53,7 +53,7 @@ class Cluster:
         
         if rowWidth : self.rowWidth = rowWidth
         else : self.rowWidth = 0
-    
+
     def setData(self,corryCluster):
         self.detector = corryCluster.getDetectorID()
         self.size = corryCluster.size()
@@ -97,7 +97,7 @@ class Cluster:
                     detector = "ALPIDE_2"
             return detector
 
-        yRange = {
+        yRange = { #is this local y? If so then I can use this as my beam axis reference point for global z right?
             18 : [0 - 7.5, 0 + 7.5],
             24 : [6.25 - 7.5, 6.25 + 7.5],
             30 : [12.5 - 7.5, 12.5 + 7.5]
@@ -117,7 +117,7 @@ class Cluster:
         
         localX = 0
         if arm(phi) == "Right":
-            localX = -1*phi*round(R)
+            localX = -1*phi*round(R)    
         else:
             localX = math.copysign((abs(phi)-math.pi)*round(R),phi)
 
@@ -125,7 +125,24 @@ class Cluster:
         localPos = [localX,localY,0]
         self.localPos = localPos
 
-    
+#-----------------------------------------------------------------------------------Begin Chris added------------------------------------------------------------------------------------------
+# Do I need to use self. to update the cluster variables of local and global?
+    def alignCluster(self, localDisplacement):
+
+        globalPosUpdated = [0,0,0]
+        R = math.sqrt(self.globalPos[0]**2+self.globalPos[1]**2)
+
+        self.localPos[0] += localDisplacement[0]
+        self.localPos[1] += localDisplacement[1]
+
+        globalPosUpdated[0]=  R*math.cos((self.localPos[0])/(R)) #global x
+        globalPosUpdated[1]= -R*math.sin((self.localPos[0])/(R)) #global y
+        globalPosUpdated[2]=  self.globalPos[2] - localDisplacement[1]  #global z
+
+        self.globalPos = globalPosUpdated
+
+#-----------------------------------------------------------------------------------End Chris added------------------------------------------------------------------------------------------
+
     def isClusterIn(self):
         if (-15 < self.localPos[0] < 15) and (-7.5 < self.localPos[1] < 7.5):
             return True
