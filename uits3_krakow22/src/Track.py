@@ -1,7 +1,7 @@
 from skspatial.objects import Line
 
 class Track:
-    def __init__(self,point=None,vector=None,line=None, nClusters=None):
+    def __init__(self,point=None,vector=None,line=None, nClusters=None, rms=None):
         if point : self.point = point
         else : self.point = [0,0,0]
 
@@ -13,6 +13,9 @@ class Track:
 
         if nClusters : self.nClusters = nClusters
         else : self.nClusters = 0
+
+        if rms : self.rms = rms
+        else : self.rms = 0
     
     def fromClusters(self,clusters):
         nClusters = len(clusters)
@@ -23,5 +26,10 @@ class Track:
             self.line = line
             self.point = line.point
             self.vector = line.vector
+            rms = lambda self,clusters: (sum(self.line.distance_point(cluster.globalPos)**2 for cluster in clusters)/len(clusters))**(1/2)
+            self.rms = rms(self,clusters)
         else:
             raise Exception("Not enough clusters to construct track: #clusters = "+len(clusters))
+
+    def propagate2point(self,point):
+        return self.line.project_point(point)

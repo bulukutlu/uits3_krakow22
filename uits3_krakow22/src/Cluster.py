@@ -67,6 +67,8 @@ class Cluster:
         self.rowWidth = corryCluster.rowWidth()
 
     def setPositionGlobal(self,globalPos):
+        # For creating clusters at target global position
+        # Mainly used in simulation where the global position of track is known and the local position of clusters are wanted
         def arm(phi):
             if abs(phi) < math.pi/2:
                 return "Right"
@@ -97,7 +99,7 @@ class Cluster:
                     detector = "ALPIDE_2"
             return detector
 
-        yRange = {
+        zRange = {
             18 : [0 - 7.5, 0 + 7.5],
             24 : [6.25 - 7.5, 6.25 + 7.5],
             30 : [12.5 - 7.5, 12.5 + 7.5]
@@ -105,15 +107,15 @@ class Cluster:
 
         self.globalPos = globalPos
         
-        R = math.sqrt(globalPos[0]**2+globalPos[2]**2)
-        phi = math.atan2(globalPos[2],globalPos[0])
-        Y = globalPos[1]
+        R = math.sqrt(globalPos[0]**2+globalPos[1]**2)
+        phi = math.atan2(globalPos[1],globalPos[0])
+        Z = globalPos[2]
 
         self.detector = getDetector(round(R),arm(phi))
 
-        globalCylinderical = [R,Y,phi]
+        globalCylinderical = [R,phi,Z]
         allowedPhiRange = phiRange(round(R))
-        allowedYRange = yRange.get(round(R))
+        allowedZRange = zRange.get(round(R))
         
         localX = 0
         if arm(phi) == "Right":
@@ -121,7 +123,7 @@ class Cluster:
         else:
             localX = math.copysign((abs(phi)-math.pi)*round(R),phi)
 
-        localY = (allowedYRange[1]-7.5)-Y
+        localY = (allowedZRange[1]-7.5)-Z
         localPos = [localX,localY,0]
         self.localPos = localPos
 
@@ -131,3 +133,41 @@ class Cluster:
             return True
         else :
             return False
+
+    def alignLocal(self, localDisplacement):
+
+        globalPosUpdated = [0,0,0]
+        R = math.sqrt(self.globalPos[0]**2+self.globalPos[1]**2)
+
+        self.localPos[0] += localDisplacement[0]
+        self.localPos[1] += localDisplacement[1]
+
+        globalPosUpdated[0]=  R*math.cos((self.localPos[0])/(R)) #global x
+        globalPosUpdated[1]= -R*math.sin((self.localPos[0])/(R)) #global y
+        globalPosUpdated[2]=  self.globalPos[2] - localDisplacement[1]  #global z
+
+        if self.detector in ["ALPIDE_0","ALPIDE_1","ALPIDE_2"]:
+            globalPosUpdated[0] *= -1
+            globalPosUpdated[1] *= -1
+
+        self.globalPos = globalPosUpdated
+
+        return self
+
+    def alignGlobal(self, globalDisplacement):
+        globalPosUpdated = self.globalPos
+        globalPosUpdated[0] += globalDisplacement[0]
+        globalPosUpdated[1] += globalDisplacement[1]
+        globalPosUpdated[2] += globalDisplacement[2]
+        
+        self.setPositionGlobal(globalPosUpdated)
+        return self
+
+
+    
+    #def getPositio
+    #def applyCorrection(self,geometry):
+
+
+        #self.localPos = [self.localPos[0]-localCorrection[0],self.localPos[1]-localCorrection[1],0]
+        # to do calculate new global positions
