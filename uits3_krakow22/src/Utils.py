@@ -16,6 +16,11 @@ def readEvents(filename,nEvents=-1):
                         return
             except EOFError : break
 
+def loadEvents(filename):
+    with open(filename, "rb") as f:
+        events = pickle.load(f)
+        return events
+
 def save2pickle(obj, filename):
     with open(filename, 'wb') as outp:  # Overwrites any existing file.
         pickle.dump(obj, outp, pickle.HIGHEST_PROTOCOL)
