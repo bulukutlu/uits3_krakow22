@@ -23,6 +23,6 @@ class Vertex:
             self.position = [self.point[0],self.point[1],self.point[2]]
             self.dca = tracks[0].line.distance_line(tracks[1].line)
             self.dca2origin = self.point.distance_point(Point([0,0,0]))
-            self.openingAngle = tracks[0].vector.angle_between(tracks[1].vector)
+            self.openingAngle = tracks[1].vector.angle_between(tracks[0].vector)
         else:
             raise Exception("Provide 2 tracks to construct vertex: #tracks_given = "+len(tracks))

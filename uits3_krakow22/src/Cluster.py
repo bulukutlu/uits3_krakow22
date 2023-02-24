@@ -66,7 +66,7 @@ class Cluster:
         self.colWidth = corryCluster.columnWidth()
         self.rowWidth = corryCluster.rowWidth()
 
-    def setPositionGlobal(self,globalPos):
+    def setPositionGlobal(self,globalPos,isSim=True):
         # For creating clusters at target global position
         # Mainly used in simulation where the global position of track is known and the local position of clusters are wanted
         def arm(phi):
@@ -111,7 +111,8 @@ class Cluster:
         phi = math.atan2(globalPos[1],globalPos[0])
         Z = globalPos[2]
 
-        self.detector = getDetector(round(R),arm(phi))
+        if isSim:
+            self.detector = getDetector(round(R),arm(phi))
 
         globalCylinderical = [R,phi,Z]
         allowedPhiRange = phiRange(round(R))
@@ -154,17 +155,32 @@ class Cluster:
 
         return self
 
-    def alignGlobal(self, globalDisplacement):
+    def alignGlobal(self, globalDisplacement):  
         globalPosUpdated = self.globalPos
         globalPosUpdated[0] += globalDisplacement[0]
         globalPosUpdated[1] += globalDisplacement[1]
         globalPosUpdated[2] += globalDisplacement[2]
         
-        self.setPositionGlobal(globalPosUpdated)
+        self.globalPos = globalPosUpdated
         return self
 
+    def flipYaxis(self):
+        globalPosUpdated = [0,0,0]
+        R = math.sqrt(self.globalPos[0]**2+self.globalPos[1]**2)
 
-    
+        self.localPos[1] = -self.localPos[1] 
+
+        globalPosUpdated[0]=  R*math.cos((self.localPos[0])/(R)) #global x
+        globalPosUpdated[1]= -R*math.sin((self.localPos[0])/(R)) #global y
+        globalPosUpdated[2]=  self.globalPos[2] + 2*self.localPos[1]  #global z
+
+        if self.detector in ["ALPIDE_0","ALPIDE_1","ALPIDE_2"]:
+            globalPosUpdated[0] *= -1
+            globalPosUpdated[1] *= -1
+
+        self.globalPos = globalPosUpdated
+
+        return self
     #def getPositio
     #def applyCorrection(self,geometry):
 

@@ -1,4 +1,4 @@
-from skspatial.objects import Line
+from skspatial.objects import Line,Vector
 
 class Track:
     def __init__(self,point=None,vector=None,line=None, nClusters=None, rms=None):
@@ -26,6 +26,8 @@ class Track:
             self.line = line
             self.point = line.point
             self.vector = line.vector
+            if self.vector[2] < 0: self.vector  = Vector([axis*-1 for axis in self.vector])
+
             rms = lambda self,clusters: (sum(self.line.distance_point(cluster.globalPos)**2 for cluster in clusters)/len(clusters))**(1/2)
             self.rms = rms(self,clusters)
         else:
