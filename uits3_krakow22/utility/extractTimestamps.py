@@ -23,6 +23,7 @@ def parseArguments():
     parser.add_argument("-o", "--output", help="CSV file to save to", default="output.csv")
     parser.add_argument("-v", "--verbose", help="More printing", action="store_true")
     parser.add_argument("-vv", "--veryverbose", help="Much more printing", action="store_true")
+    parser.add_argument("-a", "--append", help="Append to output file", action="store_true")
     
     # Parse arguments
     args = parser.parse_args()
@@ -111,9 +112,11 @@ if __name__ == "__main__":
     else:
         output_file_name = args.__dict__["output"]
 
-    with open(output_file_name, 'w') as w:
+    writeMode = "w"
+    if(args.append): writeMode = "a" 
+    with open(output_file_name, writeMode) as w:
         writer = csv.writer(w)
-        writer.writerow(header)
+        if(not args.append): writer.writerow(header)
         for event in events[:-1]:
             data = parseEvent(lines,event,DAQ_COUNT)
             if args.veryverbose : print(data) # print full output if -vv is given 
