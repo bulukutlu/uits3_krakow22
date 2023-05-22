@@ -53,7 +53,7 @@ class Cluster:
         
         if rowWidth : self.rowWidth = rowWidth
         else : self.rowWidth = 0
-    
+
     def setData(self,corryCluster):
         self.detector = corryCluster.getDetectorID()
         self.size = corryCluster.size()
@@ -171,7 +171,7 @@ class Cluster:
         self.localPos[1] = -self.localPos[1] 
 
         globalPosUpdated[0]=  R*math.cos((self.localPos[0])/(R)) #global x
-        globalPosUpdated[1]= -R*math.sin((self.localPos[0])/(R)) #global y
+        globalPosUpdated[1]=  R*math.sin((self.localPos[0])/(R)) #global y
         globalPosUpdated[2]=  self.globalPos[2] + 2*self.localPos[1]  #global z
 
         if self.detector in ["ALPIDE_0","ALPIDE_1","ALPIDE_2"]:
